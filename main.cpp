@@ -11,7 +11,8 @@ SDL_Surface *screen_surface;
 SDL_Surface* bullet = NULL;
 float canon_speed_x = 0;
 float canon_speed_y = 0;
-
+float canon_power_shoot_x=0;
+float canon_power_shoot_y=0;
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2);
 void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect);
@@ -26,8 +27,6 @@ int main(int argc, char* argv[]){
     screen_surface = SDL_GetWindowSurface( window );
     cannon = SDL_LoadBMP("assets/cannon.bmp");
     bullet = SDL_LoadBMP("assets/bullet.bmp");
-
-
 
 
     SDL_Rect rect_cannon;
@@ -58,7 +57,7 @@ int main(int argc, char* argv[]){
             shoot_bullet(rect_bullet,rect_cannon);
             rect_bullet.y -=canon_speed_y;
             rect_bullet.x +=canon_speed_x ;
-            std::cout<<rect_bullet.y<<std::endl;
+            //std::cout<<rect_bullet.y<<std::endl;
             SDL_BlitSurface( bullet, NULL, screen_surface, &rect_bullet );
             SDL_UpdateWindowSurface( window );
         }
@@ -71,9 +70,7 @@ int main(int argc, char* argv[]){
 
 
         }
-
         else{frame_dropped = 1;}
-
         prev_ticks += 33;
 
     }
@@ -89,17 +86,42 @@ int main(int argc, char* argv[]){
 
 void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect){
 
-        if(rect2.x <150 or rect2.x>1110){
+        if(rect2.x <150 ){
 
         auto *key_state = SDL_GetKeyboardState(nullptr);
+            if (key_state[SDL_SCANCODE_P]){
+
+
+                     canon_power_shoot_x += 2.5;
+                     canon_power_shoot_y += 1;
+
+                }
+            if (key_state[SDL_SCANCODE_O]){
+
+                    if((canon_power_shoot_x<0)||(canon_power_shoot_y<0))
+                       {
+                           canon_power_shoot_x = 0;
+                           canon_power_shoot_y = 0;
+                       }
+                    else
+                        {
+                            canon_power_shoot_x += -2.5;
+                            canon_power_shoot_y += -1;
+                        }
+
+                }
+
+
             if (key_state[SDL_SCANCODE_SPACE]){
+
                      rect2.y = rect.y  + 30;
                      rect2.x = 115;
-                     canon_speed_x = 25;
-                     canon_speed_y = 10;
+                     canon_speed_x = canon_power_shoot_x+25;
+                     canon_speed_y = canon_power_shoot_y +10;
+                     std::cout<<canon_speed_x<<std::endl;
 
+                }
             }
-        }
 
         else if((rect2.x >=150) && (rect2.x <400)){
 
@@ -107,45 +129,54 @@ void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect){
             canon_speed_y += 0.5;
         }
 
-        else if((rect2.x>=400) && (rect2.x<=1110)){
+        else if((rect2.x>=400) && (rect2.x<1110)){
             canon_speed_x += 0.5;
             canon_speed_y +=-1.75;
         }
-
-
-
-
-
+        else if(rect2.x>1110 || rect2.y > 810){
+            rect2.y = rect.y  + 30;
+            rect2.x = 25;
+            canon_speed_y = 0;
+            canon_speed_x = 0;
+        }
 
 }
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
     /*function to catch events*/
-  auto *key_state = SDL_GetKeyboardState(nullptr);
-  SDL_Event event;
-        while(SDL_PollEvent(&event) !=0){
+    auto *key_state = SDL_GetKeyboardState(nullptr);
+    SDL_Event event;
+    while(SDL_PollEvent(&event) !=0){
             switch(event.type){
-            case SDL_QUIT:
+                case SDL_QUIT:
                 return false;
-
             }
         }
+
     if (key_state[SDL_SCANCODE_UP]){
 
-        if(rect.y < 250){
-            rect.y +=0;
-        }else{
-            rect.y -=5;
-        }
+        if(rect.y < 250)
+            {
+                rect.y +=0;
+            }
+
+        else
+            {
+                rect.y -=5;
+            }
     }
 
     if (key_state[SDL_SCANCODE_DOWN]){
-         if(rect.y < 615){
-            rect.y +=5;
 
-        }else{
-            rect.y -=0;
-        }
+         if(rect.y < 615)
+            {
+                rect.y +=5;
+            }
+        else
+            {
+
+                rect.y -=0;
+            }
 
     }
 
