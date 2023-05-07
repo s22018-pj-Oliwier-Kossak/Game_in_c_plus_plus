@@ -81,10 +81,21 @@ bool handle_events(SDL_Rect &rect){
             }
         }
     if (key_state[SDL_SCANCODE_UP]){
-        rect.y -=5;
+
+        if(rect.y < 250){
+            rect.y +=0;
+        }else{
+            rect.y -=5;
+        }
     }
+
     if (key_state[SDL_SCANCODE_DOWN]){
-        rect.y +=5;
+         if(rect.y < 615){
+            rect.y +=5;
+
+        }else{
+            rect.y -=0;
+        }
     }
 
     return true;
