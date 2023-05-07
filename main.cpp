@@ -8,7 +8,8 @@ SDL_Window *window;
 SDL_Surface *background ;
 SDL_Surface *cannon ;
 SDL_Surface *screen_surface;
-SDL_Surface* bullet = NULL;
+SDL_Surface* bullet ;
+SDL_Surface* block ;
 float canon_speed_x = 0;
 float canon_speed_y = 0;
 float canon_power_shoot_x=0;
@@ -16,6 +17,7 @@ float canon_power_shoot_y=0;
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2);
 void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect);
+void collison_bullet(SDL_Rect &rect,SDL_Rect &rect2);
 
 
 int main(int argc, char* argv[]){
@@ -27,6 +29,7 @@ int main(int argc, char* argv[]){
     screen_surface = SDL_GetWindowSurface( window );
     cannon = SDL_LoadBMP("assets/cannon.bmp");
     bullet = SDL_LoadBMP("assets/bullet.bmp");
+    block = SDL_LoadBMP("assets/block.bmp");
 
 
     SDL_Rect rect_cannon;
@@ -38,8 +41,16 @@ int main(int argc, char* argv[]){
     SDL_Rect rect_bullet;
     rect_bullet.x = 25;
     rect_bullet.y = rect_cannon.y  + 30;
-    rect_bullet.w = 0;
-    rect_bullet.h = 0;
+    rect_bullet.w = 10;
+    rect_bullet.h = 10;
+
+    SDL_Rect rect_block;
+    rect_block.x = 560;
+    rect_block.y = 100;
+    rect_block.w = 40;
+    rect_block.h = 40;
+
+
 
     auto prev_ticks = SDL_GetTicks64();
     int frame_dropped = 0;
@@ -54,9 +65,12 @@ int main(int argc, char* argv[]){
             //SDL_RenderPresent(renderer);
             SDL_BlitSurface( background, NULL, screen_surface, NULL );
             SDL_BlitSurface( cannon, NULL, screen_surface,  &rect_cannon );
+            SDL_BlitSurface( block, NULL, screen_surface,  &rect_block);
+            collison_bullet(rect_bullet,rect_block);
             shoot_bullet(rect_bullet,rect_cannon);
             rect_bullet.y -=canon_speed_y;
             rect_bullet.x +=canon_speed_x ;
+
             //std::cout<<rect_bullet.y<<std::endl;
             SDL_BlitSurface( bullet, NULL, screen_surface, &rect_bullet );
             SDL_UpdateWindowSurface( window );
@@ -82,6 +96,23 @@ int main(int argc, char* argv[]){
     SDL_Quit();
 
     return 0;
+}
+void collison_bullet(SDL_Rect &rect,SDL_Rect &rect2){
+    if(rect.x>1110 || rect.y > 810){
+            rect.y = rect.y  + 30;
+            rect.x = 25;
+            canon_speed_y = 0;
+            canon_speed_x = 0;
+    }
+    if(((rect.x+rect.w >=rect2.x) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.w>=rect2.y) &&(rect.y+rect.w<=rect2.y+rect2.h))){
+         std::cout<<"col"<<std::endl;
+         canon_speed_y = -25;
+         canon_speed_x = -10;
+
+    }
+
+
+
 }
 
 void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect){
