@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <windows.h>
+#include <random>
 
 SDL_Window *window;
 SDL_Surface *background ;
@@ -10,8 +11,7 @@ SDL_Surface *cannon ;
 SDL_Surface *screen_surface;
 SDL_Surface* bullet ;
 SDL_Surface* block ;
-SDL_Surface* block2 ;
-SDL_Surface* block3 ;
+SDL_Surface* block_king;
 float canon_speed_x = 0;
 float canon_speed_y = 0;
 float canon_power_shoot_x=0;
@@ -19,7 +19,8 @@ float canon_power_shoot_y=0;
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2);
 void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect);
-void collison_bullet(SDL_Rect &rect,SDL_Rect &rect2, SDL_Rect &rect3);
+void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2, SDL_Rect &rect3);
+void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3);
 
 
 int main(int argc, char* argv[]){
@@ -32,6 +33,7 @@ int main(int argc, char* argv[]){
     cannon = SDL_LoadBMP("assets/cannon.bmp");
     bullet = SDL_LoadBMP("assets/bullet.bmp");
     block = SDL_LoadBMP("assets/block.bmp");
+    block_king = SDL_LoadBMP("assets/king.bmp");
 
 
     SDL_Rect rect_cannon;
@@ -43,26 +45,50 @@ int main(int argc, char* argv[]){
     SDL_Rect rect_bullet;
     rect_bullet.x = 25;
     rect_bullet.y = rect_cannon.y  + 30;
-    rect_bullet.w = 12;
-    rect_bullet.h = 12;
+    rect_bullet.w = 15;
+    rect_bullet.h = 15;
 
     SDL_Rect rect_block;
     rect_block.x = 560;
     rect_block.y = 100;
-    rect_block.w = 42;
-    rect_block.h = 42;
+    rect_block.w = 40;
+    rect_block.h = 40;
 
     SDL_Rect rect_block2;
-    rect_block2.x = 360;
-    rect_block2.y = 630;
-    rect_block2.w = 42;
-    rect_block2.h = 42;
+    rect_block2.x = 570;
+    rect_block2.y = 330;
+    rect_block2.w = 40;
+    rect_block2.h = 40;
 
     SDL_Rect rect_block3;
     rect_block3.x = 790;
     rect_block3.y = 150;
-    rect_block3.w = 42;
-    rect_block3.h = 42;
+    rect_block3.w = 40;
+    rect_block3.h = 40;
+
+    SDL_Rect rect_block4;
+    rect_block4.x = 900;
+    rect_block4.y = 350;
+    rect_block4.w = 40;
+    rect_block4.h = 40;
+
+    SDL_Rect rect_block5;
+    rect_block5.x = 690;
+    rect_block5.y = 260;
+    rect_block5.w = 40;
+    rect_block5.h = 40;
+
+    SDL_Rect rect_block6;
+    rect_block6.x = 790;
+    rect_block6.y = 325;
+    rect_block6.w = 40;
+    rect_block6.h = 40;
+
+    SDL_Rect rect_block_king;
+    rect_block_king.x = 950;
+    rect_block_king.y = 230;
+    rect_block_king.w = 40;
+    rect_block_king.h = 40;
 
 
 
@@ -82,9 +108,17 @@ int main(int argc, char* argv[]){
             SDL_BlitSurface( block, NULL, screen_surface,  &rect_block);
             SDL_BlitSurface( block, NULL, screen_surface,  &rect_block2);
             SDL_BlitSurface( block, NULL, screen_surface,  &rect_block3);
-            collison_bullet(rect_bullet, rect_block, rect_cannon);
-            collison_bullet(rect_bullet, rect_block2, rect_cannon);
-            collison_bullet(rect_bullet,rect_block3, rect_cannon);
+            SDL_BlitSurface( block, NULL, screen_surface,  &rect_block4);
+            SDL_BlitSurface( block, NULL, screen_surface,  &rect_block5);
+            SDL_BlitSurface( block, NULL, screen_surface,  &rect_block6);
+            SDL_BlitSurface( block_king, NULL, screen_surface,  &rect_block_king);
+            collison_bullet_block(rect_bullet, rect_block, rect_cannon);
+            collison_bullet_block(rect_bullet, rect_block2, rect_cannon);
+            collison_bullet_block(rect_bullet,rect_block3, rect_cannon);
+            collison_bullet_block(rect_bullet,rect_block4, rect_cannon);
+            collison_bullet_block(rect_bullet,rect_block5, rect_cannon);
+            collison_bullet_block(rect_bullet,rect_block6, rect_cannon);
+            collison_bullet_king(rect_bullet,rect_block_king, rect_cannon);
             shoot_bullet(rect_bullet, rect_cannon);
             rect_bullet.y -=canon_speed_y;
             rect_bullet.x +=canon_speed_x ;
@@ -94,7 +128,7 @@ int main(int argc, char* argv[]){
             SDL_UpdateWindowSurface( window );
         }
 
-        auto ticks = SDL_GetTicks64();
+        int ticks = SDL_GetTicks64();
 
         if ((ticks - prev_ticks) < 33){
             SDL_Delay(33 - (ticks - prev_ticks));
@@ -115,7 +149,7 @@ int main(int argc, char* argv[]){
 
     return 0;
 }
-void collison_bullet(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
+void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
     if(rect.x>1110 || rect.y > 810){
             rect.y = rect3.y  + 100;
 
@@ -123,10 +157,33 @@ void collison_bullet(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
             canon_speed_y = 0;
             canon_speed_x = 0;
     }
-    if(((rect.x+rect.w >=rect2.x) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h))){
+    if(((rect.x+rect.w >=rect2.x-5) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h+8))){
          std::cout<<"col"<<std::endl;
-         canon_speed_y = -25;
+         canon_speed_y = -30;
          canon_speed_x = -10;
+
+    }
+
+
+
+}
+
+void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
+     int random_positon_x = 850+(rand()%225);
+     int random_positon_y = 80+(rand()%250);
+    if(rect.x>1110 || rect.y > 810){
+            rect.y = rect3.y  + 100;
+
+            rect.x = 25;
+            canon_speed_y = 0;
+            canon_speed_x = 0;
+    }
+    if(((rect.x+rect.w >=rect2.x-5) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h+8))){
+         std::cout<<"col"<<std::endl;
+         canon_speed_y = -30;
+         canon_speed_x = -10;
+         rect2.x = random_positon_x;
+         rect2.y = random_positon_y;
 
     }
 
@@ -141,9 +198,15 @@ void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect){
         auto *key_state = SDL_GetKeyboardState(nullptr);
             if (key_state[SDL_SCANCODE_P]){
 
+                    if(canon_power_shoot_y >10){
+                        canon_power_shoot_x += 0;
+                        canon_power_shoot_y += 0;
+                    }
+                    else{
+                        canon_power_shoot_x += 2.5;
+                        canon_power_shoot_y += 1;
+                    }
 
-                     canon_power_shoot_x += 2.5;
-                     canon_power_shoot_y += 1;
 
                 }
             if (key_state[SDL_SCANCODE_O]){
@@ -207,29 +270,24 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
 
     if (key_state[SDL_SCANCODE_UP]){
 
-        if(rect.y < 250)
-            {
+        if(rect.y < 250){
                 rect.y +=0;
             }
 
-        else
-            {
+        else{
                 rect.y -=5;
             }
-    }
+        }
 
     if (key_state[SDL_SCANCODE_DOWN]){
 
-         if(rect.y < 615)
-            {
+         if(rect.y < 615){
                 rect.y +=5;
             }
-        else
-            {
+        else{
 
                 rect.y -=0;
             }
-
     }
 
     return true;
