@@ -9,25 +9,28 @@ SDL_Window *window;
 SDL_Surface *background ;
 SDL_Surface *cannon ;
 SDL_Surface *screen_surface;
-SDL_Surface* bullet ;
-SDL_Surface* block ;
-SDL_Surface* block_king;
+SDL_Surface *bullet ;
+SDL_Surface *block ;
+SDL_Surface *block_king;
 float canon_speed_x = 0;
 float canon_speed_y = 0;
 float canon_power_shoot_x=0;
 float canon_power_shoot_y=0;
+int count_shoot=3;
+int points = 0;
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2);
-void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect);
+
 void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2, SDL_Rect &rect3);
 void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3);
+void display_shoot_counter();
+void display_shoot_and_point_counter();
 
 
 int main(int argc, char* argv[]){
 
     SDL_Init(SDL_INIT_EVERYTHING);
     window = SDL_CreateWindow("cannon game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,1100,800,SDL_WINDOW_SHOWN);
-    //SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     background = SDL_LoadBMP("assets/background.bmp");
     screen_surface = SDL_GetWindowSurface( window );
     cannon = SDL_LoadBMP("assets/cannon.bmp");
@@ -96,13 +99,15 @@ int main(int argc, char* argv[]){
     int frame_dropped = 0;
     SDL_UpdateWindowSurface( window );
 
+
+    display_shoot_and_point_counter();
+
     while (handle_events(rect_cannon, rect_bullet)){
         SDL_UpdateWindowSurface( window );
 
         if (!frame_dropped){
 
-            //SDL_RenderClear(renderer);
-            //SDL_RenderPresent(renderer);
+
             SDL_BlitSurface( background, NULL, screen_surface, NULL );
             SDL_BlitSurface( cannon, NULL, screen_surface,  &rect_cannon );
             SDL_BlitSurface( block, NULL, screen_surface,  &rect_block);
@@ -119,11 +124,9 @@ int main(int argc, char* argv[]){
             collison_bullet_block(rect_bullet,rect_block5, rect_cannon);
             collison_bullet_block(rect_bullet,rect_block6, rect_cannon);
             collison_bullet_king(rect_bullet,rect_block_king, rect_cannon);
-            shoot_bullet(rect_bullet, rect_cannon);
             rect_bullet.y -=canon_speed_y;
             rect_bullet.x +=canon_speed_x ;
 
-            //std::cout<<rect_bullet.y<<std::endl;
             SDL_BlitSurface( bullet, NULL, screen_surface, &rect_bullet );
             SDL_UpdateWindowSurface( window );
         }
@@ -143,7 +146,6 @@ int main(int argc, char* argv[]){
 
 
 
-    //SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
@@ -152,15 +154,18 @@ int main(int argc, char* argv[]){
 void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
     if(rect.x>1110 || rect.y > 810){
             rect.y = rect3.y  + 100;
-
             rect.x = 25;
             canon_speed_y = 0;
             canon_speed_x = 0;
+
+
     }
     if(((rect.x+rect.w >=rect2.x-5) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h+8))){
-         std::cout<<"col"<<std::endl;
          canon_speed_y = -30;
          canon_speed_x = -10;
+         count_shoot--;
+         display_shoot_and_point_counter();
+
 
     }
 
@@ -169,93 +174,35 @@ void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
 }
 
 void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
-     int random_positon_x = 850+(rand()%225);
-     int random_positon_y = 80+(rand()%250);
-    if(rect.x>1110 || rect.y > 810){
-            rect.y = rect3.y  + 100;
 
+     int random_positon_x = 850+(rand()%210);
+     int random_positon_y = 80+(rand()%250);
+     if(rect.x>1110 || rect.y > 810){
+            rect.y = rect3.y  + 100;
             rect.x = 25;
             canon_speed_y = 0;
             canon_speed_x = 0;
+
+
     }
     if(((rect.x+rect.w >=rect2.x-5) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h+8))){
-         std::cout<<"col"<<std::endl;
          canon_speed_y = -30;
          canon_speed_x = -10;
          rect2.x = random_positon_x;
          rect2.y = random_positon_y;
+         count_shoot+=2;
+         points++;
+         display_shoot_and_point_counter();
 
     }
 
-
-
 }
 
-void shoot_bullet(SDL_Rect &rect2,SDL_Rect &rect){
-
-        if(rect2.x <150 ){
-
-        auto *key_state = SDL_GetKeyboardState(nullptr);
-            if (key_state[SDL_SCANCODE_P]){
-
-                    if(canon_power_shoot_y >10){
-                        canon_power_shoot_x += 0;
-                        canon_power_shoot_y += 0;
-                    }
-                    else{
-                        canon_power_shoot_x += 2.5;
-                        canon_power_shoot_y += 1;
-                    }
 
 
-                }
-            if (key_state[SDL_SCANCODE_O]){
-
-                    if((canon_power_shoot_x<0)||(canon_power_shoot_y<0))
-                       {
-                           canon_power_shoot_x = 0;
-                           canon_power_shoot_y = 0;
-                       }
-                    else
-                        {
-                            canon_power_shoot_x += -2.5;
-                            canon_power_shoot_y += -1;
-                        }
-
-                }
 
 
-            if (key_state[SDL_SCANCODE_SPACE]){
 
-                     rect2.y = rect.y  + 30;
-                     rect2.x = 115;
-                     canon_speed_x = canon_power_shoot_x+25;
-                     canon_speed_y = canon_power_shoot_y +10;
-                     std::cout<<canon_speed_x<<std::endl;
-
-                }
-            }
-
-        else if((rect2.x >=150) && (rect2.x <400)){
-
-            canon_speed_x += -0.5;
-            canon_speed_y += 0.5;
-        }
-
-        else if((rect2.x>=400) && (rect2.x<1110)){
-            canon_speed_x += 0.5;
-            canon_speed_y +=-1.75;
-        }
-
-        else if(rect2.x>1110 || rect2.y > 810){
-
-            rect2.y = rect.y + 100;
-            rect2.x = 15;
-            canon_speed_y = 0;
-            canon_speed_x = 0;
-        }
-
-}
 
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
     /*function to catch events*/
@@ -289,8 +236,84 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
                 rect.y -=0;
             }
     }
+    if(rect2.x <150 ){
+
+        if (key_state[SDL_SCANCODE_P]){
+
+                if(canon_power_shoot_y >10){
+                    canon_power_shoot_x += 0;
+                    canon_power_shoot_y += 0;
+                }
+                else{
+                    canon_power_shoot_x += 2.5;
+                    canon_power_shoot_y += 1;
+                }
+
+
+                }
+        if (key_state[SDL_SCANCODE_O]){
+
+                if((canon_power_shoot_x<0)||(canon_power_shoot_y<0))
+                    {
+                        canon_power_shoot_x = 0;
+                        canon_power_shoot_y = 0;
+                    }
+                else
+                    {
+                        canon_power_shoot_x += -2.5;
+                        canon_power_shoot_y += -1;
+                    }
+
+            }
+
+
+        if (key_state[SDL_SCANCODE_SPACE]){
+
+                rect2.y = rect.y  + 30;
+                rect2.x = 115;
+                canon_speed_x = canon_power_shoot_x+25;
+                canon_speed_y = canon_power_shoot_y +10;
+                std::cout<<canon_speed_x<<std::endl;
+
+            }
+        }
+
+    else if((rect2.x >=150) && (rect2.x <400)){
+
+        canon_speed_x += -0.5;
+        canon_speed_y += 0.5;
+
+    }
+
+    else if((rect2.x>=400) && (rect2.x<1110)){
+        canon_speed_x += 0.5;
+        canon_speed_y +=-1.75;
+    }
+
+    else if(rect2.x>1110 || rect2.y > 810){
+        rect2.y = rect.y + 100;
+        rect2.x = 15;
+        canon_speed_y = 0;
+        canon_speed_x = 0;
+
+    }
 
     return true;
 }
+
+void display_shoot_and_point_counter(){
+    std::cout <<"Shoots: "<<count_shoot<<"   Points: "<<points<<std::endl;
+    if(count_shoot<=0){
+
+         std::cout <<"GAME OVER"<<std::endl;
+         canon_speed_y = 0;
+         canon_speed_x = 0;
+
+    }
+
+}
+
+
+
 
 
