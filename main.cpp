@@ -120,7 +120,8 @@ int main(int argc, char* argv[]){
             collison_bullet_block(rect_bullet,rect_block5, rect_cannon);
             collison_bullet_block(rect_bullet,rect_block6, rect_cannon);
             collison_bullet_king(rect_bullet,rect_block_king, rect_cannon);
-
+            rect_bullet.y -=canon_speed_y;
+            rect_bullet.x +=canon_speed_x ;
             SDL_BlitSurface( bullet, NULL, screen_surface, &rect_bullet );
             SDL_UpdateWindowSurface( window );
         }
@@ -188,10 +189,6 @@ void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
 
 
 
-
-
-
-
 bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
     /*function to catch events*/
     auto *key_state = SDL_GetKeyboardState(nullptr);
@@ -254,7 +251,6 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
                     }
 
             }
-
 
         if (key_state[SDL_SCANCODE_SPACE]){
 
