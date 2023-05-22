@@ -263,7 +263,6 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
 
                 rect2.y = rect.y  + 30;
                 rect2.x = 115;
-
                 canon_speed_x = 15+canon_power_shoot_x;
                 canon_speed_y = 15+canon_power_shoot_y;
 
