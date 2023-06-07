@@ -153,6 +153,7 @@ void collison_bullet_block(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
             canon_speed_x = 0;
             p = {0,0};
             v = {0,0};
+            a = {0,0};
     }
 
     if(((rect.x+rect.w >=rect2.x-5) &&(rect.x+rect.w<=rect2.x+rect2.w))&&((rect.y+rect.h>=rect2.y) &&(rect.y+rect.h<=rect2.y+rect2.h+8))){
@@ -175,6 +176,7 @@ void collison_bullet_king(SDL_Rect &rect,SDL_Rect &rect2,SDL_Rect &rect3){
             canon_speed_x = 0;
             p = {0,0};
             v = {0,0};
+            a = {0,0};
 
 
     }
@@ -258,8 +260,11 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
             }
 
         if (key_state[SDL_SCANCODE_SPACE]){
-                p = {2.5,0};
+
+                p = {0,0};
                 v = {0,2.5};
+                a = {0.025,0};
+
 
                 rect2.y = rect.y  + 30;
                 rect2.x = 115;
@@ -276,6 +281,7 @@ bool handle_events(SDL_Rect &rect,SDL_Rect &rect2){
         canon_speed_x = 0;
         p = {0,0};
         v = {0,0};
+        a = {0,0};
 
     }
 
